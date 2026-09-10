@@ -1,0 +1,8 @@
+{
+  "name": "Music Player",
+  "description": "A full-featured music streaming web application with search, synced lyrics, playlists, liked songs, history, and YouTube playback.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
