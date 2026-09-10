@@ -252,7 +252,12 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
                     >
                       <motion.div
                         whileHover={isActive ? { scale: 1.02 } : {}}
-                        className="relative rounded-[44px] overflow-hidden shadow-2xl"
+                        onClick={() => {
+                          if (isActive) {
+                            onNavigate('playlist-detail', playlist.id);
+                          }
+                        }}
+                        className="relative rounded-[44px] overflow-hidden shadow-2xl cursor-pointer"
                         style={{
                           aspectRatio: '3/4',
                         }}
@@ -362,6 +367,10 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
                 <motion.div
                   key={album.id}
                   whileHover={{ scale: 1.05 }}
+                  onClick={() => {
+                    // Navigate to album/playlist detail
+                    onNavigate('playlist-detail', album.id);
+                  }}
                   className="min-w-[180px] cursor-pointer group"
                 >
                   <div className="relative rounded-2xl overflow-hidden mb-3 shadow-xl">
