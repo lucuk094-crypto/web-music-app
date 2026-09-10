@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useMusicPlayer } from '../context/PlayerContextNew';
+import { fetchFeaturedPlaylists, fetchNewReleases, fetchPlaylistTracks } from '../lib/api';
 import { Bell, Search, Settings, Play, Heart, Clock, Download, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface HomeViewNewProps {
@@ -16,10 +17,44 @@ interface FeaturedItem {
 }
 
 export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
-  const { currentUser, recentSongs = [] } = useMusicPlayer();
+  const { currentUser, recentSongs = [], playSong } = useMusicPlayer();
   const [activeFilter, setActiveFilter] = useState<string>('History');
   const [dominantColor, setDominantColor] = useState<string>('59, 130, 246');
   const [currentSlide, setCurrentSlide] = useState(0);
+  
+  // Spotify data state
+  const [featuredPlaylists, setFeaturedPlaylists] = useState<any[]>([]);
+  const [newReleases, setNewReleases] = useState<any[]>([]);
+  const [trendingTracks, setTrendingTracks] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load Spotify data
+  useEffect(() => {
+    const loadSpotifyData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch featured playlists
+        const playlists = await fetchFeaturedPlaylists(12);
+        setFeaturedPlaylists(playlists);
+        
+        // Fetch new releases
+        const releases = await fetchNewReleases(12);
+        setNewReleases(releases);
+        
+        // Fetch trending tracks from featured playlist
+        if (playlists.length > 0) {
+          const tracks = await fetchPlaylistTracks(playlists[0].id, 20);
+          setTrendingTracks(tracks);
+        }
+      } catch (error) {
+        console.error('Error loading Spotify data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSpotifyData();
+  }, []);
 
   const featuredItems: FeaturedItem[] = [
     {

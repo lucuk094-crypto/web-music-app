@@ -136,3 +136,78 @@ export function parseLrcLyrics(lrcText: string): LyricLine[] {
 
   return lines.sort((a, b) => a.time - b.time);
 }
+
+/**
+ * Fetch featured playlists from Spotify
+ */
+export async function fetchFeaturedPlaylists(limit: number = 20) {
+  try {
+    const response = await fetch(`/api/browse/featured-playlists?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch featured playlists');
+    const data = await response.json();
+    return data.playlists || [];
+  } catch (error) {
+    console.error('Error fetching featured playlists:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch new releases from Spotify
+ */
+export async function fetchNewReleases(limit: number = 20) {
+  try {
+    const response = await fetch(`/api/browse/new-releases?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch new releases');
+    const data = await response.json();
+    return data.albums || [];
+  } catch (error) {
+    console.error('Error fetching new releases:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch browse categories from Spotify
+ */
+export async function fetchCategories(limit: number = 20) {
+  try {
+    const response = await fetch(`/api/browse/categories?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch categories');
+    const data = await response.json();
+    return data.categories || [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch category playlists from Spotify
+ */
+export async function fetchCategoryPlaylists(categoryId: string, limit: number = 20) {
+  try {
+    const response = await fetch(`/api/browse/category/${categoryId}/playlists?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch category playlists');
+    const data = await response.json();
+    return data.playlists || [];
+  } catch (error) {
+    console.error('Error fetching category playlists:', error);
+    return [];
+  }
+}
+
+/**
+ * Fetch playlist tracks from Spotify
+ */
+export async function fetchPlaylistTracks(playlistId: string, limit: number = 50) {
+  try {
+    const response = await fetch(`/api/playlist/${playlistId}/tracks?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch playlist tracks');
+    const data = await response.json();
+    return data.tracks || [];
+  } catch (error) {
+    console.error('Error fetching playlist tracks:', error);
+    return [];
+  }
+}
