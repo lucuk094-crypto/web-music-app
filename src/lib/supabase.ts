@@ -14,8 +14,9 @@ const STORAGE_KEYS = {
 
 // Retrieve config from env or local storage
 export function getSupabaseCredentials(): { url: string; anonKey: string } {
-  const envUrl = (import.meta as any).env?.VITE_SUPABASE_URL || '';
-  const envKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || '';
+  // Vite exposes env vars via import.meta.env
+  const envUrl = import.meta.env?.VITE_SUPABASE_URL || '';
+  const envKey = import.meta.env?.VITE_SUPABASE_ANON_KEY || '';
 
   try {
     const saved = localStorage.getItem(STORAGE_KEYS.SUPABASE_CONFIG);
