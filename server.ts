@@ -366,6 +366,227 @@ async function startServer() {
     }
   });
 
+  /**
+   * GET /api/browse/featured-playlists
+   * Get Spotify featured playlists
+   */
+  app.get("/api/browse/featured-playlists", async (req, res) => {
+    const limit = parseInt(req.query.limit as string || "20");
+    const cacheKey = `featured_playlists_${limit}`;
+    const cached = searchCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    try {
+      const token = await getSpotifyToken();
+      const response = await axios.get("https://api.spotify.com/v1/browse/featured-playlists", {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          country: "ID",
+          locale: "id_ID",
+          limit: Math.min(limit, 50),
+        },
+      });
+
+      const playlists = response.data.playlists.items.map((playlist: any) => ({
+        id: playlist.id,
+        name: playlist.name,
+        description: playlist.description,
+        cover: playlist.images[0]?.url || "",
+        tracksCount: playlist.tracks.total,
+        owner: playlist.owner.display_name,
+        spotifyUrl: playlist.external_urls.spotify,
+      }));
+
+      const result = { playlists, total: playlists.length };
+      searchCache.set(cacheKey, { timestamp: Date.now(), data: result });
+      res.json(result);
+    } catch (error: any) {
+      console.error("❌ Featured playlists error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch featured playlists" });
+    }
+  });
+
+  /**
+   * GET /api/browse/new-releases
+   * Get Spotify new releases
+   */
+  app.get("/api/browse/new-releases", async (req, res) => {
+    const limit = parseInt(req.query.limit as string || "20");
+    const cacheKey = `new_releases_${limit}`;
+    const cached = searchCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    try {
+      const token = await getSpotifyToken();
+      const response = await axios.get("https://api.spotify.com/v1/browse/new-releases", {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          country: "ID",
+          limit: Math.min(limit, 50),
+        },
+      });
+
+      const albums = response.data.albums.items.map((album: any) => ({
+        id: album.id,
+        name: album.name,
+        artist: album.artists.map((a: any) => a.name).join(", "),
+        cover: album.images[0]?.url || "",
+        releaseDate: album.release_date,
+        tracksCount: album.total_tracks,
+        spotifyUrl: album.external_urls.spotify,
+        type: album.album_type,
+      }));
+
+      const result = { albums, total: albums.length };
+      searchCache.set(cacheKey, { timestamp: Date.now(), data: result });
+      res.json(result);
+    } catch (error: any) {
+      console.error("❌ New releases error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch new releases" });
+    }
+  });
+
+  /**
+   * GET /api/browse/categories
+   * Get Spotify browse categories
+   */
+  app.get("/api/browse/categories", async (req, res) => {
+    const limit = parseInt(req.query.limit as string || "20");
+    const cacheKey = `categories_${limit}`;
+    const cached = searchCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    try {
+      const token = await getSpotifyToken();
+      const response = await axios.get("https://api.spotify.com/v1/browse/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          country: "ID",
+          locale: "id_ID",
+          limit: Math.min(limit, 50),
+        },
+      });
+
+      const categories = response.data.categories.items.map((cat: any) => ({
+        id: cat.id,
+        name: cat.name,
+        icon: cat.icons[0]?.url || "",
+      }));
+
+      const result = { categories, total: categories.length };
+      searchCache.set(cacheKey, { timestamp: Date.now(), data: result });
+      res.json(result);
+    } catch (error: any) {
+      console.error("❌ Categories error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch categories" });
+    }
+  });
+
+  /**
+   * GET /api/browse/category/:id/playlists
+   * Get playlists for specific category
+   */
+  app.get("/api/browse/category/:id/playlists", async (req, res) => {
+    const categoryId = req.params.id;
+    const limit = parseInt(req.query.limit as string || "20");
+    const cacheKey = `category_${categoryId}_${limit}`;
+    const cached = searchCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    try {
+      const token = await getSpotifyToken();
+      const response = await axios.get(`https://api.spotify.com/v1/browse/categories/${categoryId}/playlists`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          country: "ID",
+          limit: Math.min(limit, 50),
+        },
+      });
+
+      const playlists = response.data.playlists.items.map((playlist: any) => ({
+        id: playlist.id,
+        name: playlist.name,
+        description: playlist.description,
+        cover: playlist.images[0]?.url || "",
+        tracksCount: playlist.tracks.total,
+        owner: playlist.owner.display_name,
+        spotifyUrl: playlist.external_urls.spotify,
+      }));
+
+      const result = { playlists, total: playlists.length };
+      searchCache.set(cacheKey, { timestamp: Date.now(), data: result });
+      res.json(result);
+    } catch (error: any) {
+      console.error("❌ Category playlists error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch category playlists" });
+    }
+  });
+
+  /**
+   * GET /api/playlist/:id/tracks
+   * Get tracks from a specific playlist
+   */
+  app.get("/api/playlist/:id/tracks", async (req, res) => {
+    const playlistId = req.params.id;
+    const limit = parseInt(req.query.limit as string || "50");
+    const cacheKey = `playlist_tracks_${playlistId}_${limit}`;
+    const cached = searchCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      return res.json(cached.data);
+    }
+
+    try {
+      const token = await getSpotifyToken();
+      const response = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          market: "ID",
+          limit: Math.min(limit, 100),
+        },
+      });
+
+      const tracks = response.data.items
+        .filter((item: any) => item.track) // Filter out null tracks
+        .map((item: any) => ({
+          spotifyId: item.track.id,
+          title: item.track.name,
+          artist: item.track.artists.map((a: any) => a.name).join(", "),
+          album: item.track.album.name,
+          cover: item.track.album.images[0]?.url || "",
+          duration: Math.floor(item.track.duration_ms / 1000),
+          durationFormatted: formatDuration(Math.floor(item.track.duration_ms / 1000)),
+          previewUrl: item.track.preview_url,
+          spotifyUrl: item.track.external_urls.spotify,
+          addedAt: item.added_at,
+        }));
+
+      const result = { 
+        playlistId,
+        tracks, 
+        total: tracks.length,
+        next: response.data.next 
+      };
+      searchCache.set(cacheKey, { timestamp: Date.now(), data: result });
+      res.json(result);
+    } catch (error: any) {
+      console.error("❌ Playlist tracks error:", error.response?.data || error.message);
+      res.status(500).json({ error: "Failed to fetch playlist tracks" });
+    }
+  });
+
   // Vite middleware in dev; static dist in production
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
