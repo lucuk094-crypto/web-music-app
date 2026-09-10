@@ -323,9 +323,9 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
 
             {/* Dots Indicator */}
             <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center gap-2 z-40">
-              {featuredItems.map((_, index) => (
+              {featuredPlaylists.slice(0, 6).map((playlist, index) => (
                 <button
-                  key={`dot-${index}`}
+                  key={`dot-${playlist.id}`}
                   onClick={() => setCurrentSlide(index)}
                   className={`h-1.5 rounded-full transition-all ${
                     index === currentSlide
@@ -336,6 +336,9 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
               ))}
             </div>
           </div>
+          ) : (
+            <p className="text-center text-zinc-400 py-12">No featured playlists available</p>
+          )}
         </div>
 
         {/* New Releases Section */}
