@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LogIn, UserPlus, Sparkles, X, Database, Shield } from 'lucide-react';
 import { signInUser, signUpUser, signInWithGoogle, isSupabaseConfigured } from '../lib/supabase';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { AuthRateLimitHelp } from './AuthRateLimitHelp';
 
 interface AuthModalProps {

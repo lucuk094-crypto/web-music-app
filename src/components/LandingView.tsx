@@ -10,7 +10,7 @@ import {
   ShieldCheck,
   Radio,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { ScreenType, Song } from '../types';
 
 interface LandingViewProps {

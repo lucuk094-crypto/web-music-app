@@ -10,7 +10,7 @@ import {
   ListPlus,
   ArrowLeft,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { Song, ScreenType } from '../types';
 
 interface PlaylistDetailViewProps {

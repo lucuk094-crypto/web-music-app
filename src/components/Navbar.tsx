@@ -13,7 +13,7 @@ import {
   SlidersHorizontal,
   Library,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { isSupabaseConfigured, signOutUser } from '../lib/supabase';
 import { ScreenType } from '../types';
 

@@ -11,7 +11,7 @@ import {
   Disc3,
   X,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { ScreenType, Playlist } from '../types';
 
 interface LibraryViewProps {

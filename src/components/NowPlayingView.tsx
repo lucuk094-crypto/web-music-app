@@ -20,7 +20,7 @@ import {
   ExternalLink,
   GripVertical,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { formatTime, getActiveLyricIndex } from '../lib/lyrics';
 
 export const NowPlayingView: React.FC = () => {

@@ -14,7 +14,7 @@ import {
   saveSupabaseCredentials,
   isSupabaseConfigured,
 } from '../lib/supabase';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 
 interface SupabaseConfigModalProps {
   isOpen: boolean;

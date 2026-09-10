@@ -16,7 +16,7 @@ import {
   Pause,
   Library,
 } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import { ScreenType } from '../types';
 
 interface SidebarProps {

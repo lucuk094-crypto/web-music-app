@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 import {
   ChevronDown,
   MoreVertical,

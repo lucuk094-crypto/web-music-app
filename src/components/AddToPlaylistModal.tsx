@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Check, X, ListMusic } from 'lucide-react';
-import { useMusicPlayer } from '../context/PlayerContext';
+import { useMusicPlayer } from '../context/PlayerContextNew';
 
 export const AddToPlaylistModal: React.FC = () => {
   const {
