@@ -93,11 +93,13 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
   }, []);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % featuredItems.length);
+    const maxSlide = Math.max(featuredPlaylists.length - 1, 0);
+    setCurrentSlide((prev) => (prev + 1) % (maxSlide + 1));
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + featuredItems.length) % featuredItems.length);
+    const maxSlide = Math.max(featuredPlaylists.length - 1, 0);
+    setCurrentSlide((prev) => (prev - 1 + (maxSlide + 1)) % (maxSlide + 1));
   };
 
   return (
@@ -209,95 +211,102 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* 3D Coverflow Carousel */}
+        {/* 3D Coverflow Carousel - Featured Playlists from Spotify */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-white mb-6 px-6">Featured</h2>
+          <h2 className="text-2xl font-bold text-white mb-6 px-6">
+            {isLoading ? 'Loading...' : 'Featured Playlists'}
+          </h2>
           
-          <div className="relative h-[420px]">
-            {/* Carousel Container with 3D Perspective */}
-            <div className="relative h-full flex items-center justify-center overflow-hidden px-4">
-              {featuredItems.map((item, index) => {
-                const offset = index - currentSlide;
-                const isActive = offset === 0;
-                const isLeft = offset < 0;
-                const isRight = offset > 0;
-                const absOffset = Math.abs(offset);
-                
-                return (
-                  <motion.div
-                    key={item.id}
-                    animate={{
-                      x: `${offset * 65}%`,
-                      scale: isActive ? 1 : 0.7,
-                      opacity: absOffset === 0 ? 1 : absOffset === 1 ? 0.5 : 0.2,
-                      zIndex: isActive ? 30 : absOffset === 1 ? 20 : 10,
-                      rotateY: isLeft ? 40 : isRight ? -40 : 0,
-                    }}
-                    transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                    onClick={() => setCurrentSlide(index)}
-                    className="absolute w-[70%] md:w-[55%] lg:w-[45%] max-w-sm cursor-pointer"
-                    style={{
-                      transformStyle: 'preserve-3d',
-                      perspective: '1200px',
-                    }}
-                  >
+          {isLoading ? (
+            <div className="flex items-center justify-center h-[420px]">
+              <div className="w-12 h-12 border-4 border-[#C6FF3D] border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : featuredPlaylists.length > 0 ? (
+            <div className="relative h-[420px]">
+              {/* Carousel Container with 3D Perspective */}
+              <div className="relative h-full flex items-center justify-center overflow-hidden px-4">
+                {featuredPlaylists.slice(0, 6).map((playlist, index) => {
+                  const offset = index - currentSlide;
+                  const isActive = offset === 0;
+                  const isLeft = offset < 0;
+                  const isRight = offset > 0;
+                  const absOffset = Math.abs(offset);
+                  
+                  return (
                     <motion.div
-                      whileHover={isActive ? { scale: 1.02 } : {}}
-                      className="relative rounded-[44px] overflow-hidden shadow-2xl"
+                      key={playlist.id}
+                      animate={{
+                        x: `${offset * 65}%`,
+                        scale: isActive ? 1 : 0.7,
+                        opacity: absOffset === 0 ? 1 : absOffset === 1 ? 0.5 : 0.2,
+                        zIndex: isActive ? 30 : absOffset === 1 ? 20 : 10,
+                        rotateY: isLeft ? 40 : isRight ? -40 : 0,
+                      }}
+                      transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+                      onClick={() => setCurrentSlide(index)}
+                      className="absolute w-[70%] md:w-[55%] lg:w-[45%] max-w-sm cursor-pointer"
                       style={{
-                        aspectRatio: '3/4',
+                        transformStyle: 'preserve-3d',
+                        perspective: '1200px',
                       }}
                     >
-                      <img
-                        src={item.coverUrl}
-                        alt={item.title}
-                        className="w-full h-full object-cover"
-                      />
-                      
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90" />
-                      
-                      {/* Card Info */}
-                      <div className="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 className="text-2xl font-bold text-white mb-1">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-zinc-300 opacity-80">
-                          {item.subtitle}
-                        </p>
-                      </div>
+                      <motion.div
+                        whileHover={isActive ? { scale: 1.02 } : {}}
+                        className="relative rounded-[44px] overflow-hidden shadow-2xl"
+                        style={{
+                          aspectRatio: '3/4',
+                        }}
+                      >
+                        <img
+                          src={playlist.cover || 'https://via.placeholder.com/640'}
+                          alt={playlist.name}
+                          className="w-full h-full object-cover"
+                        />
+                        
+                        {/* Gradient Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90" />
+                        
+                        {/* Card Info */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6">
+                          <h3 className="text-2xl font-bold text-white mb-1">
+                            {playlist.name}
+                          </h3>
+                          <p className="text-sm text-zinc-300 opacity-80 line-clamp-2">
+                            {playlist.description || `${playlist.tracksCount} songs`}
+                          </p>
+                        </div>
 
-                      {/* Play Button - Only on Active Card */}
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 0, scale: 0.8 }}
-                          whileHover={{ opacity: 1, scale: 1 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm"
-                        >
-                          <motion.button
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            className="w-16 h-16 rounded-full bg-[#C6FF3D] flex items-center justify-center shadow-2xl shadow-lime-500/40"
+                        {/* Play Button - Only on Active Card */}
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 0, scale: 0.8 }}
+                            whileHover={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm"
                           >
-                            <Play className="w-7 h-7 text-black fill-black ml-1" />
-                          </motion.button>
-                        </motion.div>
-                      )}
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="w-16 h-16 rounded-full bg-[#C6FF3D] flex items-center justify-center shadow-2xl shadow-lime-500/40"
+                            >
+                              <Play className="w-7 h-7 text-black fill-black ml-1" />
+                            </motion.button>
+                          </motion.div>
+                        )}
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
 
-            {/* Navigation Arrows */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={prevSlide}
-              disabled={currentSlide === 0}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors z-40 disabled:opacity-30 disabled:cursor-not-allowed"
+              {/* Navigation Arrows */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={prevSlide}
+                disabled={currentSlide === 0}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors z-40 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-6 h-6 text-white" />
             </motion.button>
@@ -306,7 +315,7 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={nextSlide}
-              disabled={currentSlide === featuredItems.length - 1}
+              disabled={currentSlide === Math.max(featuredPlaylists.length - 1, 0)}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-colors z-40 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-6 h-6 text-white" />
@@ -328,6 +337,98 @@ export const HomeViewNew: React.FC<HomeViewNewProps> = ({ onNavigate }) => {
             </div>
           </div>
         </div>
+
+        {/* New Releases Section */}
+        <div className="px-6 mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <p className="text-xs text-[#C6FF3D] uppercase tracking-wider mb-1">Fresh Drops</p>
+              <h2 className="text-3xl font-bold text-white">New Releases 🔥</h2>
+            </div>
+          </div>
+
+          {isLoading ? (
+            <div className="flex gap-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="w-48 h-64 bg-white/5 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : newReleases.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+              {newReleases.map((album: any) => (
+                <motion.div
+                  key={album.id}
+                  whileHover={{ scale: 1.05 }}
+                  className="min-w-[180px] cursor-pointer group"
+                >
+                  <div className="relative rounded-2xl overflow-hidden mb-3 shadow-xl">
+                    <img
+                      src={album.cover}
+                      alt={album.name}
+                      className="w-full aspect-square object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-12 h-12 rounded-full bg-[#C6FF3D] flex items-center justify-center">
+                        <Play className="w-5 h-5 text-black fill-black ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-white text-sm mb-1 line-clamp-2">
+                    {album.name}
+                  </h3>
+                  <p className="text-xs text-zinc-400 line-clamp-1">{album.artist}</p>
+                  <p className="text-xs text-zinc-500">{album.type} • {album.releaseDate?.split('-')[0]}</p>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-zinc-400">No new releases available</p>
+          )}
+        </div>
+
+        {/* Trending Tracks Section */}
+        {trendingTracks.length > 0 && (
+          <div className="px-6 mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-xs text-[#C6FF3D] uppercase tracking-wider mb-1">What's Hot</p>
+                <h2 className="text-3xl font-bold text-white">Trending Now 📈</h2>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {trendingTracks.slice(0, 10).map((track: any, index: number) => (
+                <motion.div
+                  key={track.spotifyId}
+                  whileHover={{ backgroundColor: 'rgba(255,255,255,0.05)' }}
+                  onClick={() => playSong(track, trendingTracks)}
+                  className="flex items-center gap-4 p-3 rounded-xl cursor-pointer group"
+                >
+                  <div className="flex-shrink-0 w-8 text-center">
+                    <span className="text-lg font-bold text-zinc-400 group-hover:text-[#C6FF3D]">
+                      {index + 1}
+                    </span>
+                  </div>
+                  <img
+                    src={track.cover}
+                    alt={track.title}
+                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-white text-sm truncate group-hover:text-[#C6FF3D]">
+                      {track.title}
+                    </h4>
+                    <p className="text-xs text-zinc-400 truncate">{track.artist}</p>
+                  </div>
+                  <div className="text-xs text-zinc-500">{track.durationFormatted}</div>
+                  <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play className="w-8 h-8 text-[#C6FF3D]" />
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Keep Listening Section */}
         <div className="px-6 mb-8">
